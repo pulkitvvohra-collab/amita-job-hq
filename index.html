@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job Search HQ · Amita Jethani</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213D;--paper:#EEF1F4;--card:#fff;--amber:#F2A900;--teal:#1F6468;--muted:#4F5B69;--line:#D5DBE2;--board:#101826;--good:#1F8A4C}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+a{color:var(--teal)}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{background:var(--board);color:#fff;padding:26px 28px 22px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:"Big Shoulders Display";font-weight:800;font-size:clamp(38px,6vw,64px);line-height:.9;margin:0;text-transform:uppercase}
+h1 span{color:var(--amber)}
+.who{color:#AEB8C6;font-size:14px;margin-top:8px}
+.flap{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.cell{background:#1B2638;border-top:1px solid #2A374D;border-radius:4px;padding:8px 14px;min-width:100px;position:relative}
+.cell::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#0B111B}
+.cell b{font-family:"Big Shoulders Display";font-size:32px;color:var(--amber);display:block;line-height:1}
+.cell span{font:10px "IBM Plex Mono";letter-spacing:1.4px;color:#AEB8C6;text-transform:uppercase}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0 0}
+.step{background:#1B2638;border-radius:6px;padding:10px 14px;font-size:13.5px;color:#D7DEE8}
+.step b{color:var(--amber);font-family:"IBM Plex Mono";margin-right:6px}
+main{padding:22px 28px 90px}
+h2{font-family:"Big Shoulders Display";font-size:30px;text-transform:uppercase;margin:6px 0 10px;letter-spacing:.5px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.bar input,.bar select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+.bar input{flex:1;min-width:200px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font:600 12px "IBM Plex Mono";padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip i{font-style:normal;opacity:.6;margin-left:4px}
+.meta{font-size:13px;color:var(--muted);margin-bottom:8px}
+.row{display:grid;grid-template-columns:56px 1fr 200px 170px 96px;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:11px 14px;margin-bottom:7px}
+.row.want{border-left:5px solid var(--amber)}.row.done{border-left:5px solid var(--good)}
+.score{font-family:"Big Shoulders Display";font-weight:800;font-size:26px;text-align:center;line-height:1;color:var(--teal)}
+.score small{display:block;font:9.5px "IBM Plex Mono";color:var(--muted);letter-spacing:1px}
+.t{font-weight:600}.t a{color:var(--ink);text-decoration:none}.t a:hover{text-decoration:underline}
+.sub{font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font:600 10.5px "IBM Plex Mono";padding:2px 6px;border-radius:4px;background:#E6ECF2;margin-right:4px}
+.tag.new{background:var(--amber);color:var(--board)}
+.where{font-size:13px}
+select.st{font:13px "IBM Plex Sans";padding:6px;border:1px solid var(--line);border-radius:6px;width:100%}
+.btn{font:600 12px "IBM Plex Mono";padding:8px 10px;border-radius:6px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;text-decoration:none;text-align:center;white-space:nowrap}
+.btn.ghost{background:#fff;color:var(--ink)}
+.empty{padding:34px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:8px}
+.more{display:block;margin:10px auto 0}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.rc{background:#fff;border:1px solid var(--line);border-radius:8px;padding:13px 15px;display:flex;flex-direction:column;gap:5px}
+.rc.sent{border-left:5px solid var(--good)}
+.rc h3{margin:0;font-size:16px}
+.cc{font:600 11px "IBM Plex Mono";letter-spacing:1px;color:var(--teal);text-transform:uppercase}
+.fit{font:600 10.5px "IBM Plex Mono";padding:2px 6px;border-radius:4px;align-self:flex-start}
+.fit.s{background:#DDF2E5;color:#145C33}.fit.g{background:#E6ECF2;color:#3E4955}
+.rc .links{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px;align-items:center}
+details{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:600}
+pre{white-space:pre-wrap;background:#F6F8FA;border:1px solid var(--line);border-radius:6px;padding:12px;font:12.5px/1.5 "IBM Plex Mono"}
+.tray{position:fixed;left:0;right:0;bottom:0;background:var(--board);color:#fff;padding:12px 28px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;z-index:5}
+.tray[hidden]{display:none}
+.tray .btn{background:var(--amber);border-color:var(--amber);color:var(--board)}
+hr{border:0;border-top:1px solid var(--line);margin:34px 0 20px}
+@media(max-width:860px){header,main{padding-left:14px;padding-right:14px}.steps{grid-template-columns:1fr}.row{grid-template-columns:48px 1fr}.row>.where,.row>.stc,.row>.ap{grid-column:2}}
+[hidden]{display:none!important}main .wrap{min-width:0}.row>div{min-width:0;overflow-wrap:anywhere}.jobdetail{margin:8px 0 0;padding:7px 9px;font-size:12px}.jobdetail p{margin:8px 0}.jobdetail summary{font-size:12px}.bar input{min-width:0;width:100%}.cell{min-width:110px}.btn{min-height:40px;display:inline-flex;align-items:center;justify-content:center}#storageMessage{display:block;font-size:12px;margin-top:8px}@media(max-width:480px){.bar{align-items:stretch}.bar input,.bar select{width:100%}.rgrid{grid-template-columns:minmax(0,1fr)}.tray>div:last-child{flex-wrap:wrap}.tray{padding:10px 14px}.tray .btn{font-size:10px}main{padding-bottom:180px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Job Search <span>HQ</span></h1>
+  <div class="who"><b style="color:#fff">Amita Jethani</b> · Senior Full-Stack Engineer · Conversational AI · React / Node.js / Python · Abu Dhabi</div>
+  <div class="flap" id="flap"></div>
+  <div class="steps">
+    <div class="step"><b>1</b>Browse the jobs. Click <b style="margin:0">View role ↗</b> to open the original posting.</div>
+    <div class="step"><b>2</b>Set a job's status to <b style="margin:0">Want to apply</b>. Your choices save in this browser.</div>
+    <div class="step"><b>3</b>Click <b style="margin:0">Copy my picks</b> at the bottom and paste it into the Genspark chat. Use Amita’s resume to request tailored applications.</div>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+<details open><summary>Amita’s profile · UAE first / GCC only</summary><p><b>Core roles:</b> Senior full-stack engineer · Node.js backend engineer · Conversational AI developer · LLM application engineer · Enterprise workflow developer.</p><p><b>Skills from the resume:</b> React, JavaScript, HTML/CSS, Node.js, Express, Python, REST APIs, SQL, ServiceNow, authentication and API security, AWS Lambda, Azure, GCP, CloudFormation, GitHub Actions, GitLab CI, Power Automate, LLM integration, RAG, Genesys Cloud, Microsoft Bot Framework, Dialogflow, yellow.ai, Pandas/NumPy, Power BI, Prometheus, Datadog and CloudWatch. Jest: working knowledge.</p><p><b>Experience:</b> 8+ years as stated in the resume · Eli Lilly and Company, PwC, Agrahyah Technologies, Reliable Infosys and Systematix. MSc/BSc IT · Azure Fundamentals · AWS Developer – Associate.</p><p><b>Research snapshot: 2 November 2026.</b> Five UAE leads; no other GCC vacancies seeded yet. The country filters cover UAE, Saudi Arabia, Qatar, Bahrain, Kuwait and Oman only. No live feed, daily refresh or email automation is connected. Job availability is not guaranteed. Closed and Arabic-mandatory leads were excluded.</p><p><b>Fit method:</b> core stack 35 + AI remit 25 + cloud 15 + experience 15 + domain 10. Scores are editorial screening aids. Open each role’s checks before applying.</p><p><b>Your tracking stays in this browser.</b> It does not sync between phones/computers. Export a backup below. This dashboard does not submit applications or send email.</p><button class="btn ghost" id="backup">Export tracking backup</button> <label class="btn ghost" style="display:inline-block">Restore backup<input type="file" id="restore" accept="application/json" hidden></label><span id="storageMessage" role="status"></span></details>
+  <h2>Jobs</h2>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Search, e.g. React, Node.js, conversational AI, Abu Dhabi" aria-label="Search jobs">
+    <select id="show" aria-label="Show"><option value="all">All jobs</option><option value="new">Added in latest research</option><option value="mine">My picks and applications</option></select>
+    <select id="sort" aria-label="Sort"><option value="score">Best match first</option><option value="date">Newest first</option></select>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="meta" id="meta"></div>
+  <div id="list"></div>
+  <button class="btn ghost more" id="more" hidden>Show more</button>
+
+  <hr>
+  <h2>Recruiters: send your CV once</h2>
+  <div class="meta">UAE recruiter websites reviewed for this version. Use <b>Visit website</b> to find suitable vacancies or a CV registration route. Tick <b>CV sent</b> only after submitting it yourself.</div>
+  <details><summary>Cover note to paste into agency forms (click to open)</summary><pre id="note"></pre><button class="btn" id="copyNote">Copy note</button></details>
+  <div class="chips" id="rchips"></div>
+  <div class="rgrid" id="rgrid"></div>
+</div></main>
+
+<div class="tray" id="tray" hidden>
+  <div><b id="trayN">0</b> job(s) marked <i>Want to apply</i></div>
+  <div style="display:flex;gap:8px"><button class="btn" id="copy">Copy my picks for Genspark</button><button class="btn" id="csv" style="background:none;color:#fff;border-color:#55627A">Download my list (CSV)</button></div>
+</div>
+
+<script>
+const DATA={"generated": "2026-11-02", "window_days": 0, "count": 5, "jobs": [{"title": "Senior Full Stack Engineer – Conversation AI", "company": "Dicetek LLC (recruiter/services company; end client not named)", "location": "Abu Dhabi", "country": "United Arab Emirates", "posted": "", "salary": "", "url": "https://www.naukrigulf.com/senior-full-stack-engineer-conversation-ai-jobs-in-abu-dhabi-uae-in-dicetek-llc-6-to-10-years-m-cd-41691-jid-110926000811", "source": "Job-board description", "score": 94, "tier": "A — priority; confirm vacancy before applying", "employment": "Full-time; on-site. Permanent versus fixed-term not stated.", "level": "Senior; at least 6 years; listing search card says 6–10 years", "description": "Reviewed the complete responsibilities and candidate profile, not the search card. Lead scalable conversational-AI platforms, end-to-end frontend/backend/database architecture, third-party AI/API integration, and intent/entity/dialogue pipelines. Requires secure microservices and REST APIs, React.js and FastAPI, GenAI and RAG, cloud-native Azure/AWS, Python and JavaScript/TypeScript. Backend options include FastAPI, Flask and Node.js; frontend alternatives include Angular/Vue. Also asks for agentic workflows, scalable data preprocessing/pipelines, governance, Azure OpenAI/foundation-model deployment, serverless compute/storage and familiarity with ACR/resource groups. Relevant quantitative bachelor's required; master's preferred. Foundit gives a banking transformation context.", "match_reason": "Very direct overlap with the supplied 8+ years, React/JavaScript, Node.js/Express, Python, REST APIs, conversational chat/voice systems, LLM/RAG, AWS Lambda and Azure. Banking delivery and PwC enterprise consulting are relevant. Editorial components: stack 33/35, AI 24/25, cloud 14/15, experience 14/15, domain 9/10 = 94.", "gaps": "Not established by the supplied summary: FastAPI/Flask, TypeScript, agent orchestration, Azure OpenAI/ACR, production data-pipeline scale, ML intent/entity pipeline ownership and mentoring/architecture evidence. These are unverified capabilities, not asserted deficiencies. Resume confirms MSc/BSc IT, GitHub Actions/GitLab CI, secure authentication and SQL; depth in each vacancy’s specific tools still needs checking.", "verification": "Description reviewed; availability unknown as of 2026-11-02. Full target JD accessible on two boards; no closure notice in retrieved target descriptions. Easy Apply or employer-active badges are not proof this requisition remains open. Posting date unknown; 30+ days on a search card was not converted into a date."}, {"title": "Backend Engineer", "company": "DeepLight AI / Deeplight", "location": "Abu Dhabi; hybrid according to GulfHire", "country": "United Arab Emirates", "posted": "", "salary": "", "url": "https://apply.workable.com/deeplight/j/3E5D91BA75/", "source": "Employer careers", "score": 93, "tier": "A — priority; confirm vacancy before applying", "employment": "Not established in fetched target JD; employer openings search result labels Full time. Contract duration unknown.", "level": "At least 5 years; senior scope despite unqualified job title", "description": "Reviewed the complete employer ATS description, requirements and benefits. Build full-stack AI-powered banking applications using microservices and REST APIs; integrate GenAI, RAG and agentic workflows; establish modular architecture, reusable templates and documentation; implement data pipelines, preprocessing and governance; manage Docker and CI/CD; communicate between business, UI/UX, data science and engineering. Requirements include FastAPI/Flask/Node.js and React/Angular/Vue, Python and JavaScript/TypeScript, Azure OpenAI, Azure/AWS serverless services including Azure Functions/AWS Lambda and S3/Blob storage, expert Docker/ACR/CI/CD, quantitative bachelor's, 5+ years, and advanced banking-product/operations knowledge. Benefits explicitly include visa sponsorship, health insurance and development support.", "match_reason": "Strong match across React, Node.js, Python, REST, conversational AI, RAG, Azure/AWS and specifically AWS Lambda. Banking background and PwC experience suit the business-facing consulting requirements. Editorial components: stack 33/35, AI 23/25, cloud 15/15, experience 13/15, domain 9/10 = 93.", "gaps": "Need evidence of expert Docker/ACR/CI/CD, Azure OpenAI, FastAPI/Flask, TypeScript, data governance/pipelines, advanced banking operations/product knowledge. General banking project exposure does not prove the advertised advanced domain depth. Resume confirms MSc/BSc IT, GitHub Actions/GitLab CI, secure authentication and SQL; depth in each vacancy’s specific tools still needs checking.", "verification": "Description reviewed; availability unknown as of 2026-11-02. Employer ATS target description remains accessible and agrees with GulfHire; no closure notice retrieved, but application submission was not tested. GulfHire explicitly says Posted 29 Oct without a year; this board date is not promoted to an employer posting date."}, {"title": "Senior AI Full-Stack Engineer", "company": "RemotePeople (recruiter; end employer unnamed)", "location": "United Arab Emirates; city and work mode not stated in reviewed JD", "country": "United Arab Emirates", "posted": "", "salary": "", "url": "https://www.founditgulf.com/job/senior-ai-full-stack-engineer-remotepeople-united-arab-emirates-69420751", "source": "Job-board description", "score": 92, "tier": "A — strong technical fit; recruiter-intake caveat", "employment": "Full-time per target LinkedIn metadata; permanent versus contract unknown", "level": "Senior; 5+ years in JD", "description": "Reviewed full What you'll do, requirements and nice-to-have sections. Build full-stack AI products from concept to production; Python/Node backend APIs; React/Next.js/TypeScript frontend; REST, microservices and distributed systems; PostgreSQL/MongoDB/Redis; integrate LLMs, RAG, AI agents and automation; deploy to AWS/Azure/GCP with Docker/Kubernetes; contribute to security, performance, reliability, CI/CD and architecture; collaborate and mentor. Requires 5+ years, modern backend/frontend skills, APIs, production systems, cloud, containers, databases and system design. Nice-to-haves include vector databases, Kafka/RabbitMQ, Terraform, leadership, and AI/fintech/energy/cybersecurity industry exposure. Closing text invites CVs for opportunities, so it may be a general talent intake rather than one funded vacancy.", "match_reason": "Covers almost the entire supplied stack and LLM/RAG experience, with all three named cloud platforms and relevant banking/enterprise delivery. Editorial components: stack 33/35, AI 24/25, cloud 14/15, experience 14/15, domain 7/10 = 92; requisition uncertainty is shown in tier rather than hidden in the fit score.", "gaps": "Next.js/TypeScript, SQL/NoSQL choices, vector database implementation, Docker/Kubernetes, event-driven systems, Terraform and mentoring are not established. Confirm actual end client, UAE city, work mode, visa, compensation and whether there is a specific vacancy. Resume confirms MSc/BSc IT, GitHub Actions/GitLab CI, secure authentication and SQL; depth in each vacancy’s specific tools still needs checking.", "verification": "Description reviewed; availability unknown as of 2026-11-02. Full JD read on Foundit; target LinkedIn only exposed metadata and related jobs, which were not treated as the JD or proof of availability. Search-result dates differed across sites and were not used as posting dates."}, {"title": "Full-stack Engineer, AI Applications", "company": "Technology Innovation Institute (TII)", "location": "Abu Dhabi", "country": "United Arab Emirates", "posted": "", "salary": "", "url": "https://ae.linkedin.com/jobs/view/full-stack-engineer-ai-applications-at-technology-innovation-institute-4477064936", "source": "Job-board description", "score": 82, "tier": "B — strong AI application fit; seniority and availability check", "employment": "Full-time per target metadata and full mirror; duration unknown", "level": "2–8 years in JD; target LinkedIn labels Associate. Candidate's 8+ years may exceed intended band.", "description": "Reviewed the full named-employer mirror covering institute context, responsibilities, qualifications and nice-to-haves. Within AIDRC Enterprise, build end-to-end AI applications surfacing Falcon and other foundation models; chat, document, analytics and administration interfaces; LLM streaming, agentic/tool calling, citation rendering and human review; APIs/orchestration/enterprise authentication; performance, accessibility, observability and engineering standards. Requires relevant bachelor's/master's, 2–8 years shipping production full-stack products, React/equivalent, TypeScript/CSS/state management/components, Python FastAPI/Flask, REST/async/databases, practical conversational LLM UX, OAuth/OIDC/SSO/RBAC, Docker/Kubernetes and CI/CD. English required; Arabic a plus, not mandatory. Nice-to-haves include patents/publications, open source, WebSockets/SSE, design work and regulated or bilingual applications.", "match_reason": "Strong overlap in React, Python, REST, LLM integration and conversational UX. Lilly healthcare and banking are relevant to the optional regulated-industry background, while PwC experience supports enterprise stakeholder work. Editorial components: stack 32/35, AI 23/25, cloud/deployment 8/15, experience 11/15, domain 8/10 = 82.", "gaps": "Need TypeScript, FastAPI/Flask, async, tool calling/citations/streaming, SSO/RBAC, Docker/Kubernetes, CI/CD evidence. Seniority band could be a mismatch. Publications/patents are optional and not a reason alone to reject. Exact correspondence between syndicated JD version and current LinkedIn requisition cannot be independently guaranteed. Resume confirms MSc/BSc IT, GitHub Actions/GitLab CI, secure authentication and SQL; depth in each vacancy’s specific tools still needs checking.", "verification": "Description reviewed; availability unknown as of 2026-11-02. Full named-employer JD read on Trabajo; ZeroTaxJobs provides an agreeing but shorter version with employer identity paywalled in fetched text. Original LinkedIn exposed metadata/related jobs only; raw fallback returned HTTP 429. No claim that the related-job card means the target is active."}, {"title": "Senior Full-Stack Engineer", "company": "DXC Luxoft", "location": "Abu Dhabi", "country": "United Arab Emirates", "posted": "", "salary": "", "url": "https://career.luxoft.com/jobs/senior-full-stack-engineer-27794", "source": "Employer careers", "score": 70, "tier": "B — stack-led alternative; validate Azure depth", "employment": "Not stated in retrieved employer description; application form present", "level": "Title Senior; employer seniority field Lead; 7+ years overall, 4+ full-stack React/Python, 2+ Azure; requisition VR-125171", "description": "Reviewed full employer project description, responsibilities, must-haves, nice-to-haves and Other section. Deliver React/Next.js and Python FastAPI/Django features end to end with PostgreSQL/Cosmos DB and Azure deployment. Own API/database design, CI/CD, contracts using OpenAPI/GraphQL and shared TypeScript/Pydantic models, tests, UAT/production defects, release notes/runbooks, feature flags and rollback. Requires relevant degree/equivalent, 7+ years overall, 4+ years React/Python full-stack, 2+ years Azure, React 18+/Next.js/TypeScript/Redux or Zustand/Jest/Cypress, Python 3.11+/FastAPI or Django/ORM/pytest, Azure App Service/Container Apps/AKS/databases/Key Vault/Application Insights/API Management, Docker, Azure DevOps/GitHub Actions, Bicep/Terraform, REST/GraphQL and OAuth/OIDC/Entra ID. AWS/GCP, messaging/background jobs, Azure certification and regulated finance experience are optional. English C1 Advanced.", "match_reason": "React, Python, REST, Azure and 8+ years align at headline level; banking and Lilly healthcare offer relevant regulated-enterprise context. AWS/GCP align with optional cloud breadth. AI/RAG is not stated as a responsibility here. Editorial components: stack 29/35, AI 5/25 (transferable only; no explicit AI remit), cloud 12/15, experience 14/15, domain 10/10 = 70.", "gaps": "Must prove 4+ years specifically React/Python full-stack and 2+ years Azure; total experience alone is insufficient. Next.js/TypeScript, FastAPI/Django, Azure service depth, GraphQL/SSO, IaC, containers and automated tests are not established. Confirm interest in a role without explicit conversational-AI ownership and English C1 ability. Resume confirms MSc/BSc IT, GitHub Actions/GitLab CI, secure authentication and SQL; depth in each vacancy’s specific tools still needs checking.", "verification": "Description reviewed; availability appears open on employer website as of 2026-11-02 because target JD and job-specific application form were retrieved, but submission and recruiter confirmation were not tested. Employer displays 28/10/2026 without explicitly labeling it posting versus update date; posted is therefore empty. This is not the separate .NET/WPF Luxoft role seen on Naukrigulf."}], "new_urls": [], "scope": ["United Arab Emirates", "Saudi Arabia", "Qatar", "Bahrain", "Kuwait", "Oman"]};const RECS=[{"country": "UAE", "agency": "Hays Technology", "office": "UAE", "specialism": "Technology recruitment and IT opportunities", "cv_submit_url": "https://www.hays.ae/it", "email": "", "fit": "Technology recruiter", "notes": "Agency page reviewed 2 Nov 2026; use website to find application route."}, {"country": "UAE", "agency": "Michael Page UAE", "office": "UAE", "specialism": "General recruitment; check relevant technology vacancies", "cv_submit_url": "https://www.michaelpage.ae/", "email": "", "fit": "General recruiter", "notes": "UAE website reviewed 2 Nov 2026; no named engineering consultant verified."}];
+const KEY="aj_jobhq_v1";let st={status:{},sent:{}};try{st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch{document.getElementById("storageMessage").textContent="Saved tracking could not be read. Export backups after making changes.";}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch{document.getElementById("storageMessage").textContent="Browser storage unavailable. Your changes are temporary; export a backup.";}};
+const $=s=>document.querySelector(s);const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const jobs=DATA.jobs||[];const NEWSET=new Set(DATA.new_urls||[]);
+const STATUS=["Not reviewed","Want to apply","CV tailored","Applied","Interviewing","Offer","Not for me"];
+const PRI=["United Arab Emirates","Saudi Arabia","Qatar","Bahrain","Kuwait","Oman"];
+let country="United Arab Emirates",limit=60;
+
+$("#flap").innerHTML=[[jobs.length,"researched leads"],[jobs.filter(j=>j.score>=90).length,"priority matches"],[new Set(jobs.map(j=>j.country)).size,"countries seeded"],[RECS.length,"recruiters"],[(DATA.generated||"").slice(5),"last updated"]]
+ .map(([n,l])=>`<div class="cell"><b>${esc(n)}</b><span>${l}</span></div>`).join("");
+
+function chips(){const c={};jobs.forEach(j=>c[j.country]=(c[j.country]||0)+1);
+ const order=PRI;
+ $("#chips").innerHTML=[["","All GCC",jobs.length],...order.map(k=>[k,k,c[k]||0])].map(([v,l,n])=>`<button class="chip" aria-pressed="${country===v}" data-v="${esc(v)}">${esc(l)}<i>${n}</i></button>`).join("");
+ $("#chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{country=b.dataset.v;limit=60;chips();render();});}
+
+function render(){
+ const q=$("#q").value.toLowerCase(),show=$("#show").value;
+ let L=jobs.filter(j=>(!country||j.country===country)&&(!q||(j.title+" "+j.company+" "+j.location+" "+j.description).toLowerCase().includes(q))
+   &&(show!=="new"||NEWSET.has(j.url))&&(show!=="mine"||(st.status[j.url]&&st.status[j.url]!=="Not reviewed"&&st.status[j.url]!=="Not for me")));
+ L.sort($("#sort").value==="date"?(a,b)=>(b.posted||"").localeCompare(a.posted||"")||b.score-a.score:(a,b)=>b.score-a.score||(b.posted||"").localeCompare(a.posted||""));
+ $("#meta").textContent=`${L.length} researched lead(s). UAE first · GCC only. Match is an editorial skills-fit score, not a hiring probability. Availability and contract type must be checked per role.`;
+ $("#list").innerHTML=L.length?L.slice(0,limit).map(j=>{const s=st.status[j.url]||"Not reviewed";
+  const cls=s==="Want to apply"||s==="CV tailored"?"want":["Applied","Interviewing","Offer"].includes(s)?"done":"";
+  return `<div class="row ${cls}"><div class="score">${j.score}<small>FIT / 100</small></div>
+   <div><div class="t"><a href="${esc(j.url)}" target="_blank" rel="noopener">${esc(j.title)}</a></div>
+   <div class="sub">${esc(j.company)}${j.salary?" · "+esc(j.salary):""}</div>
+   <div>${NEWSET.has(j.url)?'<span class="tag new">NEW</span>':''}<span class="tag">${esc(j.source)}</span><span class="tag">reviewed ${esc(DATA.generated)}</span></div></div>
+   <div class="where">${esc(j.location)}</div>
+   <div class="stc"><select class="st" data-u="${esc(j.url)}" aria-label="Status">${STATUS.map(x=>`<option ${x===s?"selected":""}>${x}</option>`).join("")}</select></div>
+   <a class="btn ap" href="${esc(j.url)}" target="_blank" rel="noopener">View role ↗</a></div>`}).join(""):`<div class="empty">No jobs match. Clear the search box or pick "All GCC".</div>`;
+ $("#more").hidden=L.length<=limit;
+ $("#list").querySelectorAll("select.st").forEach(el=>el.onchange=()=>{st.status[el.dataset.u]=el.value;save();render();tray();});}
+$("#more").onclick=()=>{limit+=60;render();};
+["#q","#show","#sort"].forEach(s=>$(s).addEventListener("input",()=>{limit=60;render();}));
+
+function picks(){return jobs.filter(j=>st.status[j.url]==="Want to apply");}
+function tray(){const n=picks().length;$("#tray").hidden=!n;$("#trayN").textContent=n;}
+$("#copy").onclick=async()=>{const t="Tailor Amita Jethani’s CV using her supplied resume. Do not invent skills or experience. Target UAE/GCC only. Jobs:\n"+picks().map((j,i)=>`${i+1}. ${j.title} — ${j.company} — ${j.location}\n   ${j.url}`).join("\n");
+ try{await navigator.clipboard.writeText(t);$("#copy").textContent="Copied. Paste it into Genspark";}catch{prompt("Copy this:",t);}setTimeout(()=>$("#copy").textContent="Copy my picks for Genspark",2500);};
+$("#csv").onclick=()=>{const rows=[["Status","Title","Company","Location","Link"],...jobs.filter(j=>st.status[j.url]&&st.status[j.url]!=="Not reviewed").map(j=>[st.status[j.url],j.title,j.company,j.location,j.url])];
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n")],{type:"text/csv"}));a.download="amita_job_applications.csv";a.click();};
+
+let rc="";
+function recs(){const cs=[...new Set(RECS.map(r=>r.country))];
+ $("#rchips").innerHTML=[["","All",RECS.length],...cs.map(c=>[c,c,RECS.filter(r=>r.country===c).length])].map(([v,l,n])=>`<button class="chip" aria-pressed="${rc===v}" data-v="${esc(v)}">${esc(l)}<i>${n}</i></button>`).join("");
+ $("#rchips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{rc=b.dataset.v;recs();});
+ $("#rgrid").innerHTML=RECS.filter(r=>!rc||r.country===rc).map(r=>{const k=r.agency+"|"+r.country,s=!!st.sent[k];
+  return `<div class="rc ${s?"sent":""}"><div class="cc">${esc(r.country)}${r.office?" · "+esc(r.office):""}</div><h3>${esc(r.agency)}</h3>
+  <span class="fit ${(r.fit||"").startsWith("Privacy")?"s":"g"}">${esc(r.fit||"")}</span>
+  <div class="sub">${esc((r.specialism||"").split(" · ")[0])}</div>
+  ${r.consultant?`<div class="sub">Contact: ${r.consultant_url?`<a href="${esc(r.consultant_url)}" target="_blank" rel="noopener">${esc(r.consultant)}</a>`:esc(r.consultant)}</div>`:""}
+  <div class="links">${r.email?`<a class="btn" href="mailto:${esc(r.email)}">✉ Email</a>`:""}${r.cv_submit_url?`<a class="btn" href="${esc(r.cv_submit_url)}" target="_blank" rel="noopener">Visit website ↗</a>`:""}
+  <label class="sub" style="margin-left:auto;cursor:pointer"><input type="checkbox" data-k="${esc(k)}" ${s?"checked":""}> CV sent</label></div></div>`}).join("");
+ $("#rgrid").querySelectorAll("input[data-k]").forEach(cb=>cb.onchange=()=>{cb.checked?st.sent[cb.dataset.k]=1:delete st.sent[cb.dataset.k];save();recs();});}
+
+$("#note").textContent="Senior Full-Stack Engineer / Conversational AI \u2014 UAE opportunities\n\nHello,\n\nI'm Amita Jethani, based in Abu Dhabi, with 8+ years delivering enterprise applications across healthcare, FMCG and financial services, including Eli Lilly and Company and PwC.\n\nMy stack includes React, JavaScript, Node.js/Express, Python, REST APIs, AWS Lambda, Azure and GCP. I build conversational chat/voice products and LLM-assisted applications, including RAG, summarisation and triage. My work at Lilly reduced live-agent contact volume by 29% and deployment turnaround by 41%.\n\nI hold an MSc and BSc in IT, Microsoft Azure Fundamentals and AWS Developer \u2013 Associate certifications. I'm targeting senior full-stack, Node.js backend, conversational AI and enterprise automation roles in the UAE, with GCC opportunities also in scope.\n\nI can share my CV for a relevant opportunity. Please let me know the role, location, work arrangement and employment terms.\n\nRegards,\nAmita Jethani";
+$("#copyNote").onclick=async()=>{try{await navigator.clipboard.writeText($("#note").textContent);$("#copyNote").textContent="Copied";}catch{prompt("Copy:",$("#note").textContent);}};
+
+document.getElementById("backup").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({profile:"amita",state:st},null,2)],{type:"application/json"}));a.download="amita-job-hq-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
+document.getElementById("restore").onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(x.profile!=="amita"||!x.state||typeof x.state.status!=="object"||typeof x.state.sent!=="object")throw Error("Invalid backup");if(!confirm("Merge this Amita backup into your current tracking?"))return;Object.assign(st.status,x.state.status);Object.assign(st.sent,x.state.sent);save();render();tray();recs();document.getElementById("storageMessage").textContent="Backup restored.";}catch{document.getElementById("storageMessage").textContent="Could not restore: choose an Amita Job HQ backup JSON file.";}};
+chips();render();tray();recs();
+</script>
+</body>
+</html>
