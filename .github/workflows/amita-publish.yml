@@ -1,0 +1,66 @@
+name: Amita Job HQ - Publish test
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: amita-job-hq-publisher
+  cancel-in-progress: false
+
+jobs:
+  test-publish:
+    if: github.repository == 'pulkitvvohra-collab/amita-job-hq' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publish a hidden test marker in index.html
+        env:
+          AMITA_PUBLISH_TOKEN: ${{ secrets.AMITA_PUBLISH_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, re, sys
+          from datetime import datetime
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from urllib.error import HTTPError, URLError
+          from zoneinfo import ZoneInfo
+
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+
+          token = os.environ.pop('AMITA_PUBLISH_TOKEN', '')
+          if not token:
+              sys.exit('Missing repository Actions secret AMITA_PUBLISH_TOKEN.')
+          opener = build_opener(NoRedirect())
+          endpoint = 'https://api.github.com/repos/pulkitvvohra-collab/amita-job-hq/contents/index.html'
+
+          def request(method, url, payload=None):
+              headers = {'Authorization': 'Bearer ' + token,
+                         'Accept': 'application/vnd.github+json',
+                         'Content-Type': 'application/json'}
+              body = None if payload is None else json.dumps(payload).encode()
+              try:
+                  with opener.open(Request(url, data=body, headers=headers, method=method), timeout=30) as response:
+                      return json.load(response)
+              except HTTPError as exc:
+                  sys.exit(f'GitHub {method} failed: HTTP {exc.code}. Check token access and branch rules; no retry performed.')
+              except (URLError, TimeoutError):
+                  sys.exit(f'GitHub {method} failed: network or timeout. Check the commit history before retrying.')
+
+          current = request('GET', endpoint + '?ref=main')
+          original = base64.b64decode(current['content'])
+          anchor = b'<h2>GCC jobs</h2>'
+          if original.count(anchor) != 1 or original.count(b'const DATA=') != 1:
+              sys.exit('Dashboard structure is unexpected; no write performed.')
+          timestamp = datetime.now(ZoneInfo('Asia/Dubai')).strftime('%Y-%m-%d %H:%M:%S GST')
+          marker = f'\n<!-- AMITA PUBLISH TEST: {timestamp} -->'.encode()
+          clean = re.sub(rb'\r?\n<!-- AMITA PUBLISH TEST: [0-9 :GST-]+ -->', b'', original)
+          updated = clean.replace(anchor, anchor + marker, 1)
+          assert updated.replace(marker, b'', 1) == clean
+          result = request('PUT', endpoint, {'message': 'Test Amita dashboard publisher',
+              'content': base64.b64encode(updated).decode(), 'sha': current['sha'], 'branch': 'main'})
+          print('Commit:', result['commit']['html_url'])
+          print('Expected on live page source:', marker.decode().strip())
+          PY
