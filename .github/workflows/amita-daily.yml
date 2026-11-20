@@ -1,0 +1,176 @@
+name: Amita Job HQ - Daily refresh
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 15 * * *'
+permissions: {}
+concurrency:
+  group: amita-job-hq-publisher
+  cancel-in-progress: false
+jobs:
+  refresh:
+    if: github.repository == 'pulkitvvohra-collab/amita-job-hq' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.AMITA_DAILY_ENABLED == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check current jobs, find new ones, and refresh Job HQ
+        env:
+          BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+          AMITA_PUBLISH_TOKEN: ${{ secrets.AMITA_PUBLISH_TOKEN }}
+          AMITA_GMAIL_APP_PASSWORD: ${{ secrets.AMITA_GMAIL_APP_PASSWORD }}
+          RUN_KIND: ${{ github.event_name }}
+        run: |
+          python3 - <<'PY'
+          import base64, concurrent.futures, html, json, os, re, smtplib, ssl, sys, time
+          from datetime import datetime
+          from email.message import EmailMessage
+          from urllib.error import HTTPError, URLError
+          from urllib.parse import urlencode, urlsplit, urlunsplit
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from zoneinfo import ZoneInfo
+
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs): return None
+
+          token = os.environ.pop('AMITA_PUBLISH_TOKEN', '')
+          search_key = os.environ.pop('BRAVE_SEARCH_API_KEY', '')
+          mail_key = os.environ.pop('AMITA_GMAIL_APP_PASSWORD', '').replace(' ', '')
+          scheduled = os.environ['RUN_KIND'] == 'schedule'
+          if not token or not search_key or (scheduled and not mail_key):
+              sys.exit('Required Actions secret missing: AMITA_PUBLISH_TOKEN, BRAVE_SEARCH_API_KEY, or (scheduled runs) AMITA_GMAIL_APP_PASSWORD.')
+          api = 'https://api.github.com/repos/pulkitvvohra-collab/amita-job-hq/contents/index.html'
+          live_site = 'https://pulkitvvohra-collab.github.io/amita-job-hq/'
+          dubai = datetime.now(ZoneInfo('Asia/Dubai'))
+          gcc = {'United Arab Emirates':'"United Arab Emirates" OR Dubai OR "Abu Dhabi"', 'Saudi Arabia':'"Saudi Arabia" OR Riyadh', 'Qatar':'Qatar OR Doha', 'Bahrain':'Bahrain OR Manama', 'Kuwait':'Kuwait', 'Oman':'Oman OR Muscat'}
+          countries = {'AE':'United Arab Emirates','SA':'Saudi Arabia','QA':'Qatar','BH':'Bahrain','KW':'Kuwait','OM':'Oman', 'UAE':'United Arab Emirates'}
+          countries.update({v.upper():v for v in gcc})
+          def get(url, headers=None, method='GET', data=None):
+              with build_opener(NoRedirect()).open(Request(url, headers=headers or {}, method=method,
+                      data=None if data is None else json.dumps(data).encode()), timeout=10) as response:
+                  return response.read(4_000_000), response.headers.get('Content-Type','')
+          def github(method, suffix='', data=None):
+              return json.loads(get(api+suffix, {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json',
+                                                'Content-Type':'application/json'}, method, data)[0])
+          def clean(s):
+              return re.sub(r'\s+',' ',html.unescape(re.sub(r'<[^>]{1,500}>',' ',str(s)))).strip()
+          def canonical(u):
+              p=urlsplit(u)
+              if p.scheme!='https' or not p.hostname or p.username or p.password: return ''
+              host=p.hostname.lower()
+              if host=='linkedin.com' or host.endswith('.linkedin.com'):
+                  q=re.fullmatch(r'/jobs/view/(?:[^/]+-)?(\d+)/?',p.path)
+                  return 'https://www.linkedin.com/jobs/view/'+q.group(1) if q else ''
+              return urlunsplit(('https',p.netloc,p.path.rstrip('/'),p.query,''))
+          def state(u):
+              try:
+                  if not canonical(u): return 'unknown',None
+                  raw, mime=get(u,{'User-Agent':'Mozilla/5.0','Accept':'text/html,application/xhtml+xml'})
+              except HTTPError as e:
+                  return ('closed' if e.code in {404,410} else 'unknown'),None
+              except (ValueError, URLError, TimeoutError): return 'unknown',None
+              if 'html' not in mime: return 'unknown',None
+              page=raw.decode('utf-8','replace')
+              visible=clean(re.sub(r'<(script|style)\b[^>]*>.*?</\1\s*>',' ',page,flags=re.I|re.S))
+              if re.search(r'\b(?:this (?:job|position|vacancy) (?:is no longer available|has expired|has been filled)|no longer accepting applications)\b',visible,re.I):
+                  return 'closed',None
+              for blob in re.findall(r'<script\b[^>]*type\s*=\s*["\']application/ld\+json["\'][^>]*>(.*?)</script\s*>',page,re.I|re.S):
+                  try: obj=json.loads(blob)
+                  except ValueError: continue
+                  items=obj if isinstance(obj,list) else obj.get('@graph',[obj]) if isinstance(obj,dict) else []
+                  for job in items:
+                      if not isinstance(job,dict) or job.get('@type')!='JobPosting': continue
+                      end=str(job.get('validThrough',''))[:10]
+                      if re.fullmatch(r'\d{4}-\d{2}-\d{2}',end) and end<dubai.date().isoformat(): return 'closed',None
+                      if re.search(r'\b(?:apply(?: now| for this job)?|easy apply|submit application)\b',visible,re.I): return 'open',job
+              return 'unknown',None
+          def find_jobs():
+              roles='("full stack engineer" OR "backend engineer" OR "conversational AI" OR "LLM engineer" OR "ServiceNow developer")'
+              links={}
+              for region in gcc.values():
+                  for source in ('site:linkedin.com/jobs/view','(careers OR jobs) -site:linkedin.com'):
+                      query=urlencode({'q':f'{roles} ({region}) {source}','freshness':'pw','count':8,'search_lang':'en'})
+                      hits=json.loads(get('https://api.search.brave.com/res/v1/web/search?'+query,{'X-Subscription-Token':search_key,'Accept':'application/json'})[0])
+                      for hit in hits.get('web',{}).get('results',[]):
+                          u=hit.get('url',''); k=canonical(u)
+                          if k: links.setdefault(k,u)
+                      time.sleep(1.1)
+              return links
+          def new_card(u,j):
+              org=j.get('hiringOrganization') or {}; title=clean(j.get('title','')); company=clean(org.get('name','')) if isinstance(org,dict) else ''
+              desc=clean(j.get('description','')); place=j.get('jobLocation') or []
+              for loc in ([place] if isinstance(place,dict) else place if isinstance(place,list) else []):
+                  if not isinstance(loc,dict): continue
+                  a=loc.get('address') or {}
+                  if not isinstance(a,dict): continue
+                  c=a.get('addressCountry',''); c=c.get('name','') if isinstance(c,dict) else c
+                  country=countries.get(str(c).strip().upper()); city=clean(a.get('addressLocality') or country or '')
+                  if country: break
+              else: return None
+              if not title or not company or not re.search(r'engineer|developer|full[ -]?stack|backend|conversational|software|servicenow',title,re.I): return None
+              if not re.search('[A-Za-z]{4}',desc): return None
+              stack={'React':r'\bReact\b','Node.js':r'\bNode(?:\.js|js)\b','Express':r'\bExpress\.js\b','Python':r'\bPython\b','chat or voice automation':r'conversational AI|chatbot|voicebot|voice agent','LLM/RAG':r'\bLLMs?\b|\bRAG\b|generative AI','secure APIs':r'REST API|API security','SQL':r'\bSQL\b','Azure/AWS Lambda':r'\bAzure\b|AWS Lambda','ServiceNow workflows':r'\bServiceNow\b|workflow automation'}
+              matches=[label for label,pat in stack.items() if re.search(pat,title+' '+desc,re.I)]
+              score=min(97,26+7*len(matches)+(10 if re.search(r'senior|\bsr\b',title,re.I) else 0))
+              if re.search(r'junior|intern|graduate',title,re.I): score=max(10,score-15)
+              if re.search(r'\bJava\b|\.NET|Kotlin',title,re.I): score=max(10,score-20)
+              return dict(title=title,company=company,country=country,location=city,url=u,posted=clean(j.get('datePosted',''))[:10],salary='',score=score,
+                          source='LinkedIn' if 'linkedin.com/jobs/view/' in canonical(u) else 'Career listing',score_basis='Résumé keywords vs. job description',
+                          match_reason=', '.join(matches) or 'Little overlap with the résumé keywords.',gaps='Keyword-based score; check experience, eligibility and stack requirements.',
+                          availability='Job description and an application option found on '+dubai.date().isoformat()+'.')
+          def identity(j):
+              return '|'.join(re.sub(r'[^a-z0-9]+','',str(j[k]).lower()) for k in ('company','title','country'))
+
+          current=github('GET','?ref=main')
+          page=base64.b64decode(current['content']).decode()
+          if page.count('const DATA=')!=1 or '<h2>GCC jobs</h2>' not in page: sys.exit('Dashboard format changed; left untouched.')
+          pos=page.index('const DATA=')+len('const DATA=')
+          data,length=json.JSONDecoder().raw_decode(page[pos:]); old=data['jobs']
+          known=set(data.get('amita_seen',[]))|{k for j in old for k in (canonical(j['url']),identity(j)) if k}
+          candidates=find_jobs()
+          candidates={k:u for k,u in candidates.items() if k not in known}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+              checks=list(pool.map(state,[j['url'] for j in old]+list(candidates.values())))
+          old_states=[s for s,_ in checks[:len(old)]]
+          print(f'Existing checked: {len(old)} | confirmed closed: {old_states.count("closed")} | inconclusive: {old_states.count("unknown")} | new candidates: {len(candidates)}')
+          kept=[j for j,s in zip(old,old_states) if s!='closed']; fresh=[]
+          for u,(status,job) in zip(candidates.values(),checks[len(old):]):
+              if status!='open': continue
+              j=new_card(u,job)
+              if not j or identity(j) in known: continue
+              known.update((canonical(u),identity(j))); fresh.append(j)
+          if old and not kept and not fresh: sys.exit('All entries would disappear; left dashboard untouched.')
+          if not scheduled:
+              print(f'Manual preview: {len(fresh)} new verified, {len(kept)+len(fresh)} total; no GitHub write or email.'); sys.exit(0)
+          pending={u for u in data.get('amita_pending_email',[])}|{j['url'] for j in fresh}
+          jobs=sorted(kept+fresh, key=lambda j:(list(gcc).index(j['country']),-j['score'],j['title'].lower()))
+          open_now={j['url'] for j,s in zip(old,old_states) if s=='open'}|{j['url'] for j in fresh}
+          digest=[j for j in jobs if j['url'] in pending and j['url'] in open_now]
+          remaining=[j['url'] for j in jobs if j['url'] in pending and j['url'] not in open_now]
+          stamp=dubai.isoformat(timespec='seconds')
+          data.update(jobs=jobs,count=len(jobs),new_urls=[j['url'] for j in fresh],generated=dubai.date().isoformat(),amita_refresh=stamp,
+                      amita_seen=sorted(known),amita_pending_email=remaining+[j['url'] for j in digest])
+          def render():
+              p=page[:pos]+json.dumps(data,ensure_ascii=True,separators=(',',':')).replace('<','\\u003c')+page[pos+length:]
+              return re.sub(r'\n<!-- AMITA PUBLISH TEST: [0-9 :GST-]+ -->','',p)
+          def publish(text, sha, message):
+              return github('PUT',data=dict(message=message,branch='main',sha=sha,content=base64.b64encode(text.encode()).decode()))
+          result=publish(render(),current['sha'],'Refresh Amita Job HQ')
+          print(result['commit']['html_url'])
+          for attempt in range(18):
+              try:
+                  if json.dumps(stamp).encode() in get(live_site+'?refresh='+urlencode({'stamp':stamp,'n':attempt}))[0]: break
+              except (HTTPError, URLError, TimeoutError): pass
+              time.sleep(8)
+          else: sys.exit('Commit succeeded but Pages did not confirm in time. No email sent; verified new jobs are queued for the next run.')
+          sender='vohrapulkit@gmail.com'; recipient='amita.jethani1107@gmail.com'
+          msg=EmailMessage(); msg['From']=sender; msg['To']=recipient
+          msg['Subject']=f'Amita Job HQ — {len(digest)} new GCC jobs — {dubai.date()}'
+          lines=[f"{j['title']} — {j['company']} — {j['location']} — Fit {j['score']}/100\n{j['url']}" for j in digest]
+          msg.set_content(('\n\n'.join(lines) if lines else 'No new verified matches today.')+'\n\nDashboard: '+live_site)
+          with smtplib.SMTP_SSL('smtp.gmail.com',465,timeout=20,context=ssl.create_default_context()) as mail:
+              mail.login(sender,mail_key); mail.send_message(msg)
+          if digest:
+              data['amita_pending_email']=remaining
+              publish(render(),result['content']['sha'],'Record Amita digest delivery')
+          print(f'Published {len(jobs)} jobs. Sent digest with {len(digest)} verified matches.')
+          PY
